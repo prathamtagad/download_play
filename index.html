@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Download & Play</title>
+  <style>
+    :root {
+      --bg: #0f1720;
+      --card: #0b1220;
+      --accent: #10b981;
+      --muted: #9ca3af;
+      color-scheme: dark
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, Segoe UI, system-ui, Arial;
+      background-color: #071028;
+      /* background: no-repeat linear-gradient(180deg, #071028 0%,#05111a 100%); */
+      color: #e6eef6
+    }
+
+    .wrap {
+      max-width: 940px;
+      margin: 36px auto;
+      padding: 20px
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      padding: 18px;
+      border-radius: 12px;
+      margin-top: 18px
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px
+    }
+
+    input[type=text],
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      background: transparent;
+      color: inherit
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 160px;
+      gap: 12px;
+      align-items: end
+    }
+
+    button {
+      background: var(--accent);
+      color: #042024;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px
+    }
+
+    .player {
+      margin-top: 18px;
+      display: flex;
+      gap: 12px;
+      align-items: center
+    }
+
+    audio {
+      width: 100%
+    }
+
+    .small {
+      font-size: 13px
+    }
+
+    .log {
+      font-family: monospace;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 8px;
+      border-radius: 6px;
+      margin-top: 12px;
+      max-height: 160px;
+      overflow: auto
+    }
+
+    .song-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px
+    }
+
+    .song-item {
+      gap:5px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 10px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer
+    }
+
+    .song-item:hover {
+      background: rgba(255, 255, 255, 0.08)
+    }
+
+    .song-name {
+      flex: 1;
+      word-break: break-all
+    }
+
+    .song-item button {
+      padding: 6px 10px;
+      font-size: 12px
+    }
+
+    .player-container {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 18px
+    }
+
+    .player-display {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 20px
+    }
+
+    .album-art {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2)
+    }
+
+    .album-art svg {
+      width: 40px;
+      height: 40px;
+      color: #fff
+    }
+
+    .now-playing {
+      flex: 1;
+      min-width: 0
+    }
+
+    .now-playing-title {
+      font-weight: 600;
+      color: #e6eef6;
+      font-size: 15px;
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .now-playing-status {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px
+    }
+
+    .player-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px
+    }
+
+    .control-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--accent);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      font-size: 18px
+    }
+
+    .control-btn:hover {
+      background: rgba(16, 185, 129, 0.3);
+      transform: scale(1.1)
+    }
+
+    .control-btn.play-btn {
+      background: var(--accent);
+      color: #042024;
+      width: 48px;
+      height: 48px;
+      font-size: 20px
+    }
+
+    .control-btn.play-btn:hover {
+      background: #0da873;
+      transform: scale(1.05)
+    }
+
+    .time-display {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      cursor: pointer;
+      position: relative
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.1s
+    }
+
+    .progress-bar:hover .progress-fill::after {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      top: 50%;
+      right: -6px;
+      transform: translateY(-50%);
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3)
+    }
+
+    .volume-control {
+      display: flex;
+      gap: 8px;
+      align-items: center
+    }
+
+    .volume-slider {
+      width: 100px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer
+    }
+
+    .volume-slider::-moz-range-thumb {
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer
+    }
+
+    audio {
+      display: none
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div
+        style="width:42px;height:42px;border-radius:8px;background:linear-gradient(135deg,#10b981 0%,#059669 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <span style="font-size:24px">♪</span></div>
+      <div>
+        <h1>Download & Play</h1>
+        <div class="muted small">Enter a YouTube URL or just type a song name to search and download</div>
+      </div>
+    </header>
+
+    <div class="card">
+      <div>
+        <label for="url">URL or Song Name</label>
+        <input id="url" type="text" placeholder="https://... or song name (e.g., 'Adele Rolling in the Deep')" />
+      </div>
+
+      <div style="margin-top:12px">
+        <label for="format">Format</label>
+        <select id="format">
+          <option value="mp3">mp3 (broad browser support)</option>
+          <option value="m4a">m4a</option>
+          <option value="opus">opus</option>
+        </select>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <div>
+          <label for="expected">Expected filename (optional)</label>
+          <input id="expected" type="text" placeholder="my-song-name (without extension)" />
+        </div>
+        <div style="display:flex;flex-direction:column">
+          <button id="download">Download</button>
+          <button id="download-demo" style="margin-top:8px;background:#334155">Demo</button>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div class="muted">Server endpoint: <code>/download</code></div>
+      </div>
+
+      <div id="status" class="muted" style="margin-top:10px">Ready</div>
+      <div id="log" class="log" aria-live="polite"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Play downloaded file</h3>
+      <label for="playname">Filename inside <code>/downloads/</code> (e.g. song.mp3)</label>
+      <div style="display:flex;gap:8px;margin-top:8px;margin-bottom:16px">
+        <input id="playname" type="text" placeholder="song.mp3" />
+        <button id="load" style="background:#334155">Load</button>
+      </div>
+
+      <div class="player-container">
+        <div class="player-display">
+          <div class="album-art">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+          <div class="now-playing">
+            <p class="now-playing-title" id="current-song">No song loaded</p>
+            <div class="now-playing-status" id="now-playing-status">Ready to play</div>
+          </div>
+        </div>
+
+        <div class="player-controls">
+          <button class="control-btn" id="prev-btn" title="Previous">⏮</button>
+          <button class="control-btn play-btn" id="play-btn" title="Play">▶</button>
+          <button class="control-btn" id="next-btn" title="Next">⏭</button>
+          <button class="control-btn" id="stop-btn" title="Stop" style="background:#ef4444;color:#fff">⏹</button>
+        </div>
+
+        <div class="time-display">
+          <span id="current-time">0:00</span>
+          <span id="duration">0:00</span>
+        </div>
+        <div class="progress-bar" id="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+          <div class="volume-control">
+            <span style="font-size:16px">🔊</span>
+            <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" value="100" />
+          </div>
+          <button id="stop-all" style="background:#ef4444;font-size:12px;padding:6px 10px">Clear</button>
+        </div>
+      </div>
+      <div class="muted small" style="margin-top:12px">If the file isn't available yet, wait for yt-dlp to finish on the
+        server and then enter the filename here.</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Downloaded Songs</h3>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button id="refresh-list" style="background:#334155">Refresh List</button>
+      </div>
+      <div id="song-list" class="song-list">
+        <div class="muted" style="text-align:center;padding:20px">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="audio"></audio>
+
+  <script>
+    const urlEl = document.getElementById('url');
+    const downloadBtn = document.getElementById('download');
+    const demoBtn = document.getElementById('download-demo');
+    const formatEl = document.getElementById('format');
+    const expectedEl = document.getElementById('expected');
+    const downloadStatusEl = document.getElementById('status');
+    const logEl = document.getElementById('log');
+
+    const playInput = document.getElementById('playname');
+    const loadBtn = document.getElementById('load');
+    const playBtn = document.getElementById('play-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const stopAllBtn = document.getElementById('stop-all');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const audio = document.getElementById('audio');
+    const songListEl = document.getElementById('song-list');
+    const refreshListBtn = document.getElementById('refresh-list');
+    const currentSongEl = document.getElementById('current-song');
+    const statusEl = document.getElementById('now-playing-status');
+    const currentTimeEl = document.getElementById('current-time');
+    const durationEl = document.getElementById('duration');
+    const progressBar = document.getElementById('progress-bar');
+    const progressFill = document.getElementById('progress-fill');
+    const volumeSlider = document.getElementById('volume-slider');
+
+    // Add null checks for elements before using them
+    if (!audio || !playBtn || !stopBtn || !volumeSlider || !loadBtn) {
+      console.error('Some audio player elements are missing from the DOM');
+    }
+
+    function formatTime(seconds) {
+      if (!seconds || isNaN(seconds)) return '0:00';
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    function updatePlayerUI(filename) {
+      currentSongEl.textContent = filename;
+      statusEl.textContent = 'Paused';
+      playBtn.textContent = '▶';
+    }
+
+    if(audio){
+      audio.addEventListener('error', (e) => {
+        const errorMessage = {
+          1: 'Audio loading aborted',
+          2: 'Network error',
+          3: 'Decoding failed',
+          4: 'Unsupported format'
+        }[audio.error.code] || 'Unknown error';
+        appendLog('Audio error: ' + errorMessage);
+        if(statusEl) statusEl.textContent = 'Error: ' + errorMessage;
+        if(downloadStatusEl) downloadStatusEl.textContent = 'Audio error';
+      });
+
+      audio.addEventListener('timeupdate', ()=>{
+        if(audio.duration && progressFill){
+          const percent = (audio.currentTime / audio.duration) * 100;
+          progressFill.style.width = percent + '%';
+          if(currentTimeEl) currentTimeEl.textContent = formatTime(audio.currentTime);
+        }
+      });
+
+      audio.addEventListener('loadedmetadata', () => {
+        if (durationEl) durationEl.textContent = formatTime(audio.duration);
+      });
+
+      audio.addEventListener('play', () => {
+        if (statusEl) statusEl.textContent = 'Playing';
+        if (playBtn) playBtn.textContent = '⏸';
+      });
+
+      audio.addEventListener('pause', () => {
+        if (statusEl) statusEl.textContent = 'Paused';
+        if (playBtn) playBtn.textContent = '▶';
+      });
+
+      audio.addEventListener('ended', () => {
+        if (statusEl) statusEl.textContent = 'Finished';
+        if (playBtn) playBtn.textContent = '▶';
+      });
+    }
+
+    if (progressBar) {
+      progressBar.addEventListener('click', (e) => {
+        const rect = progressBar.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        audio.currentTime = percent * audio.duration;
+      });
+    }
+
+    if (playBtn) {
+      playBtn.addEventListener('click', () => {
+        if (audio.src) {
+          if (audio.paused) {
+            audio.play().catch(err => {
+              appendLog('Playback error: ' + err.message);
+            });
+          } else {
+            audio.pause();
+          }
+        }
+      });
+    }
+
+    if (stopBtn) {
+      stopBtn.addEventListener('click', () => {
+        audio.pause();
+        audio.currentTime = 0;
+      });
+    }
+
+    if (stopAllBtn) {
+      stopAllBtn.addEventListener('click', () => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.src = '';
+        currentSongEl.textContent = 'No song loaded';
+        statusEl.textContent = 'Ready to play';
+        playInput.value = '';
+        if (playBtn) playBtn.textContent = '▶';
+        if (currentTimeEl) currentTimeEl.textContent = '0:00';
+        if (durationEl) durationEl.textContent = '0:00';
+        if (progressFill) progressFill.style.width = '0%';
+      });
+    }
+
+    if (loadBtn) {
+      loadBtn.addEventListener('click', () => {
+        const name = playInput.value.trim();
+        if (!name) { if (statusEl) statusEl.textContent = 'Enter a filename to load'; return }
+        const url = '/downloads/' + encodeURIComponent(name);
+        
+        // Reset audio element before setting new source
+        audio.pause();
+        audio.currentTime = 0;
+        
+        // Add a small delay to ensure the audio element is ready
+        setTimeout(() => {
+          audio.src = url;
+          updatePlayerUI(name);
+          appendLog('Loading: ' + name);
+          
+          // Try to play
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              appendLog('Playing: ' + name);
+            }).catch(err => {
+              if (statusEl) statusEl.textContent = 'Unable to play';
+              appendLog('Play error: ' + err.message);
+            });
+          }
+        }, 100);
+      });
+    }
+
+    if (volumeSlider) {
+      volumeSlider.addEventListener('input', (e) => {
+        audio.volume = e.target.value / 100;
+      });
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        appendLog('Previous track (feature coming soon)');
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        appendLog('Next track (feature coming soon)');
+      });
+    }
+
+    function appendLog(txt) {
+      const d = document.createElement('div'); d.textContent = txt; logEl.appendChild(d); logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    async function loadSongList() {
+      try {
+        const res = await fetch('/downloads-list');
+        const data = await res.json();
+        songListEl.innerHTML = '';
+
+        if (data.files && data.files.length > 0) {
+          data.files.forEach(file => {
+            const item = document.createElement('div');
+            item.className = 'song-item';
+            item.innerHTML = `
+              <span class="song-name">${file}</span>
+              <button class="play-song-btn" data-file="${file}">Play</button>
+              <button class="delete-song-btn" data-file="${file}" style="background:#ef4444">Delete</button>
+            `;
+            songListEl.appendChild(item);
+          });
+
+          // Add event listeners to play buttons
+          document.querySelectorAll('.play-song-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const file = btn.getAttribute('data-file');
+              const fileUrl = '/downloads/' + encodeURIComponent(file);
+              
+              audio.pause();
+              audio.currentTime = 0;
+              
+              setTimeout(() => {
+                audio.src = fileUrl;
+                updatePlayerUI(file);
+                appendLog('Loading: ' + file);
+                
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                  playPromise.then(() => {
+                    if(statusEl) statusEl.textContent = 'Playing';
+                    appendLog('Playing: ' + file);
+                    playInput.value = file;
+                  }).catch(err => {
+                    if(statusEl) statusEl.textContent = 'Unable to play: ' + err.message;
+                    appendLog('Play error: ' + err.message);
+                  });
+                }
+              }, 100);
+            });
+          });
+
+          // Add event listeners to delete buttons
+          document.querySelectorAll('.delete-song-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              e.stopPropagation();
+              const file = btn.getAttribute('data-file');
+              
+              if (confirm(`Delete ${file}?`)) {
+                try {
+                  const res = await fetch('/delete/' + encodeURIComponent(file), {
+                    method: 'DELETE'
+                  });
+                  
+                  if (res.ok) {
+                    // Stop playback if the deleted file is currently playing
+                    if (playInput.value === file) {
+                      if (audio) audio.pause();
+                      playInput.value = '';
+                      currentSongEl.textContent = 'No song loaded';
+                      if (statusEl) statusEl.textContent = 'File deleted';
+                    }
+                    
+                    appendLog('Deleted: ' + file);
+                    loadSongList(); // Refresh the list
+                  } else {
+                    const data = await res.json();
+                    appendLog('Delete error: ' + (data.error || res.status));
+                  }
+                } catch (err) {
+                  appendLog('Delete error: ' + err.message);
+                }
+              }
+            });
+          });
+        } else {
+          songListEl.innerHTML = '<div class="muted" style="text-align:center;padding:20px">No songs downloaded yet</div>';
+        }
+      } catch (err) {
+        songListEl.innerHTML = '<div class="muted" style="text-align:center;padding:20px">Error loading songs</div>';
+        appendLog('Error loading song list: ' + err.message);
+      }
+    }
+
+    refreshListBtn.addEventListener('click', loadSongList);
+
+    downloadBtn.addEventListener('click', async () => {
+      const url = urlEl.value.trim();
+      if (!url) { downloadStatusEl.textContent = 'Enter a URL or search query first'; return }
+      const payload = { url, format: formatEl.value };
+      downloadStatusEl.textContent = 'Starting download...';
+      appendLog('POST /download ' + JSON.stringify(payload));
+      try {
+        // Get the current file list to know how many files exist before download
+        const initialListRes = await fetch('/downloads-list');
+        const initialListData = await initialListRes.json();
+        const initialFileCount = initialListData.files ? initialListData.files.length : 0;
+
+        const res = await fetch('/download', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await res.json();
+        appendLog('Response: ' + JSON.stringify(data));
+        if (res.ok) {
+          downloadStatusEl.textContent = 'Download started on server';
+          appendLog('Waiting for download to complete...');
+
+          // Poll for the new file and wait for it to stabilize
+          let pollCount = 0;
+          let previousSize = -1;
+          let stableSizeCount = 0;
+          let newFileFound = false;
+          let targetFile = null;
+          let lastFileList = [];
+
+          const pollInterval = setInterval(async () => {
+            pollCount++;
+            try {
+              const listRes = await fetch('/downloads-list');
+              const listData = await listRes.json();
+              const currentFiles = listData.files || [];
+
+              // Look for files without .part extension (completed downloads)
+              const completedFiles = currentFiles.filter(f => !f.endsWith('.part'));
+              
+              // Check if a new completed file has been created
+              if (completedFiles.length > initialFileCount && !newFileFound) {
+                // Find the new file that wasn't in the initial list
+                for (let file of completedFiles) {
+                  if (!lastFileList.includes(file)) {
+                    targetFile = file;
+                    newFileFound = true;
+                    previousSize = -1; // Reset for size stability check
+                    appendLog(`New file detected: ${targetFile}`);
+                    break;
+                  }
+                }
+              }
+
+              // If we found a new file, check if it's stable
+              if (newFileFound && targetFile) {
+                try {
+                  const sizeRes = await fetch('/file-size/' + encodeURIComponent(targetFile));
+                  if (sizeRes.ok) {
+                    const sizeData = await sizeRes.json();
+                    if (sizeData.size) {
+                      const currentSize = sizeData.size;
+                      
+                      // Check if file size has stabilized (hasn't changed in last 3 checks = 3 seconds)
+                      if (currentSize === previousSize) {
+                        stableSizeCount++;
+                      } else {
+                        stableSizeCount = 0;
+                      }
+                      
+                      previousSize = currentSize;
+                      appendLog(`File size: ${targetFile} (${(currentSize / 1024 / 1024).toFixed(2)} MB)`);
+                      
+                      // File is considered complete when size is stable for 3 checks (3 seconds)
+                      if (stableSizeCount >= 3) {
+                        clearInterval(pollInterval);
+                        
+                        const fileUrl = '/downloads/' + encodeURIComponent(targetFile);
+                        if (audio) {
+                          audio.pause();
+                          audio.currentTime = 0;
+                          
+                          setTimeout(() => {
+                            audio.src = fileUrl;
+                            updatePlayerUI(targetFile);
+                            appendLog('Download complete: ' + targetFile);
+                            
+                            const playPromise = audio.play();
+                            if (playPromise !== undefined) {
+                              playPromise.then(() => {
+                                if(statusEl) statusEl.textContent = 'Playing';
+                                appendLog('Now playing: ' + targetFile);
+                                playInput.value = targetFile;
+                                loadSongList();
+                              }).catch(e => {
+                                appendLog('Auto-play error: ' + e.message);
+                                if(statusEl) statusEl.textContent = 'Download complete (tap play to start)';
+                              });
+                            }
+                          }, 100);
+                        }
+                      }
+                    }
+                  }
+                } catch (sizeErr) {
+                  appendLog('Checking file: ' + targetFile);
+                }
+              }
+
+              // Update the file list for next iteration
+              lastFileList = completedFiles;
+            } catch (err) {
+              appendLog('Error checking downloads: ' + err.message);
+            }
+            
+            // Safety timeout - stop after 5 minutes
+            if (pollCount > 300) {
+              clearInterval(pollInterval);
+              appendLog('Download timeout - stopped polling');
+              downloadStatusEl.textContent = 'Download timeout';
+            }
+          }, 1000); // Poll every 1 second
+        } else {
+          downloadStatusEl.textContent = 'Server error: ' + (data.error || res.status);
+        }
+      } catch (err) {
+        appendLog('Network error: ' + err.message);
+        downloadStatusEl.textContent = 'Network error';
+      }
+    });
+
+    demoBtn.addEventListener('click', () => {
+      // A short demo URL that many setups can handle if yt-dlp is installed
+      urlEl.value = 'ytsearch1:adele rolling in the deep';
+    });
+
+    // Suppress favicon.ico 404 errors
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.href = 'data:,';
+    document.head.appendChild(link);
+
+    // Load song list on page load
+    loadSongList();
+  </script>
+</body>
+
+</html>
